@@ -1,0 +1,95 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+
+public class SimpleTextEditor extends JFrame{
+    // Components of the text editor
+    private JTextArea textArea;
+    private JToolBar MenuBar;
+    private JTextPane File;
+    private JList Open;
+    private JList Save;
+    private JList Exit;
+
+
+    public SimpleTextEditor() {
+        // Set title and default close operations
+        setTitle("Simple Text Editor");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Initialize the text area
+        textArea = new JTextArea();
+        add(new JScrollPane(textArea), BorderLayout.CENTER);
+
+        // Initialize menu bar
+        JToolBar = new JToolBar();
+        JTextPane = new JTextPane("File");
+
+        // Initialize menu items
+        JList = new JList("Open");
+        JList = new Jlist("Save");
+        JList = new JList<>("Exit");
+
+        // Add action listeners to menu items
+        open.addActionListener(this);
+        save.addActionListener(this);
+        exit.addActionListener(this);
+
+        // Add menu items to the file menu
+        fileMenu.add(open);
+        fileMenu.add(save);
+        fileMenu.add(exit);
+
+        // Add the file menu to the menu bar
+        menuBar.add(file);
+
+        // Set menu bar for the frame
+        setJToolBar(menuBar);
+
+        // Set the size of the frame and make it visible
+        setSize(500, 400);
+        setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == open) {
+            openFile();
+        } else if (e.getSource() == save) {
+            saveFile();
+        } else if (e.getSource() == exit) {
+            System.exit(0);
+        }
+    }
+
+    // Method to open a file
+    private void openFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int option = fileChooser.showOpenDialog(this);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()))) {
+                textArea.read(reader, null);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    // Method to save a file
+    private void saveFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int option = fileChooser.showSaveDialog(this);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileChooser.getSelectedFile()))) {
+                textArea.write(writer);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new SimpleTextEditor();
+    }
+}
