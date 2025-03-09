@@ -1,273 +1,77 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.awt.*;
+import javax.swing.*;
+import java.util.HashMap;
 
-public static void main(String[] args) {
+public class Main extends JFrame {
+    private JTextField inputField;
+    private JLabel resultLabel;
+    private JComboBox<String> currencyDropdown;
 
-    public class Client {
-        private int idNumber;
-        private String firstName;
-        private String lastName;
-        private int age;
-        private Card card;
+    // Currency conversion rates
+    private final HashMap<String, Double> conversionRates;
 
-        public Client() {}
+    public Main() {
+        setTitle("Currency Converter");
+        setSize(400, 200);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridLayout(4, 2, 5, 5));
 
-        public Client(int idNumber, String firstName, String lastName, int age, Card card) {
-            this.idNumber = idNumber;
-            this.firstName = firstName;
-            this.lastName = lastName;
-            this.age = age;
-            this.card = card;
-        }
+        // Initialize conversion rates
+        conversionRates = new HashMap<>();
+        conversionRates.put("USD", 160.00);
+        conversionRates.put("EUR", 175.00);
+        conversionRates.put("GBP", 200.00);
 
-        public int getIdNumber() {
-            return idNumber;
-        }
+        // Input Field
+        add(new JLabel("Enter Amount ($):"));
+        inputField = new JTextField();
+        add(inputField);
 
-        public void setIdNumber(int idNumber) {
-            this.idNumber = idNumber;
-        }
+        // Currency Type Dropdown
+        add(new JLabel("Select Currency:"));
+        currencyDropdown = new JComboBox<>(new String[]{"USD", "EUR", "GBP"});
+        add(currencyDropdown);
 
-        public String getFirstName() {
-            return firstName;
-        }
+        // Convert Button
+        JButton convertButton = new JButton("Convert");
+        add(convertButton);
 
-        public void setFirstName(String firstName) {
-            this.firstName = firstName;
-        }
+        // Result Label
+        resultLabel = new JLabel("Result: ");
+        add(resultLabel);
 
-        public String getLastName() {
-            return lastName;
-        }
+        // Action Listener for Button
+        convertButton.addActionListener(e -> calculate());
 
-        public void setLastName(String lastName) {
-            this.lastName = lastName;
-        }
+        setVisible(true);
+    }
 
-        public int getAge() {
-            return age;
-        }
+    public void calculate() {
+        try {
+            String inputText = inputField.getText().trim();
 
-        public void setAge(int age) {
-            this.age = age;
-        }
-
-        public Card getCard() {
-            return card;
-        }
-
-        public void setCard(Card card) {
-            this.card = card;
-        }
-
-        public void displayClientDetails() {
-            System.out.println("Client ID: " + idNumber);
-            System.out.println("First Name: " + firstName);
-            System.out.println("Last Name: " + lastName);
-            System.out.println("Age: " + age);
-            if (card != null) {
-                card.displayCardDetails();
+            // Check if input is empty
+            if (inputText.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter the amount!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-        }
 
-        public void displayCardInformationOnly() {
-            if (card != null) {
-                card.displayCardDetails();
-            }
+            // Convert string input to double
+            double amount = Double.parseDouble(inputText);
+            String selectedCurrency = (String) currencyDropdown.getSelectedItem();
+            double rate = conversionRates.get(selectedCurrency);
+
+            // Perform conversion
+            double result = amount * rate;
+
+            // Update result label
+            resultLabel.setText("Converted Amount: " + result + " " + selectedCurrency);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Enter a valid number!", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public class Card {
-        private int cardNumber;
-        private double balance;
-        private int pin;
-        private boolean status;
-
-        public Card() {}
-
-        public Card(int cardNumber, double balance, int pin, boolean status) {
-            this.cardNumber = cardNumber;
-            this.balance = balance;
-            this.pin = pin;
-            this.status = status;
-        }
-
-        public int getCardNumber() {
-            return cardNumber;
-        }
-
-        public void setCardNumber(int cardNumber) {
-            this.cardNumber = cardNumber;
-        }
-
-        public double getBalance() {
-            return balance;
-        }
-
-        public void setBalance(double balance) {
-            this.balance = balance;
-        }
-
-        public int getPin() {
-            return pin;
-        }
-
-        public void setPin(int pin) {
-            this.pin = pin;
-        }
-
-        public boolean getStatus() {
-            return status;
-        }
-
-        public void setStatus(boolean status) {
-            this.status = status;
-        }
-
-        public void displayCardDetails() {
-            System.out.println("Card Number: " + cardNumber);// display method for card
-            System.out.println("Balance: " + balance);
-            System.out.println("PIN: " + pin);
-            System.out.println("Status: " + status);
-        }
-
-        public void updateCardAttributes() {
-            this.status = true;
-            this.pin = 45678;
-            displayCardDetails();
-        }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(Main::new);
     }
-
-// Client object
-    public class Main {
-        public static void main(String[] args) {
-            Card card = new Card(12345678, 1000.00, 1234, false);
-            Client client = new Client(1, "John", "Smith", 30, card);
-
-            client.displayClientDetails();
-        }
-    }
-
-
-
-    public class Main {
-        public static void main(String[] args) {
-            Client client = inputClientDetails();
-            client.displayClientDetails();
-        }
-
-        public static Client inputClientDetails() {
-            Scanner scanner = new Scanner(System.in);
-            Client client = new Client();
-            Card card = new Card();
-
-            System.out.print("Enter Client ID: ");
-            client.setIdNumber(scanner.nextInt());
-            scanner.nextLine();  // Consume newline
-
-            System.out.print("Enter First Name: ");
-            client.setFirstName(scanner.nextLine());
-
-            System.out.print("Enter Last Name: ");
-            client.setLastName(scanner.nextLine());
-
-            System.out.print("Enter Age: ");
-            client.setAge(scanner.nextInt());
-
-            System.out.print("Enter Card Number: ");
-            card.setCardNumber(scanner.nextInt());
-
-            System.out.print("Enter Balance: ");
-            card.setBalance(scanner.nextDouble());
-
-            System.out.print("Enter PIN: ");
-            card.setPin(scanner.nextInt());
-
-            System.out.print("Enter Status (true/false): ");
-            card.setStatus(scanner.nextBoolean());
-
-            client.setCard(card);
-
-            return client;
-        }
-    }
-
-    public class Main {
-        public static void main(String[] args) {
-            Client client = inputClientDetails();
-            client.displayClientDetails();
-
-            System.out.println("Modifying card attributes...");
-            client.getCard().updateCardAttributes();
-        }
-    }
-
-
-
-
-    public class Main {
-        public static void main(String[] args) {
-            Client client = inputClientDetails();
-            client.displayClientDetails();
-        }
-
-        public static Client inputClientDetails() {
-            Scanner scanner = new Scanner(System.in);
-            Client client = new Client();
-            Card card = new Card();
-
-            System.out.print("Enter Client ID: ");
-            client.setIdNumber(validateInput(scanner));
-
-            System.out.print("Enter First Name: ");
-            client.setFirstName(scanner.nextLine());
-
-            System.out.print("Enter Last Name: ");
-            client.setLastName(scanner.nextLine());
-
-            System.out.print("Enter Age: ");
-            int age = validateInput(scanner);
-            if (age < 0) {
-                System.out.println("Age cannot be negative. Setting age to 0.");
-                age = 0;
-            }
-            client.setAge(age);
-
-            System.out.print("Enter Card Number: ");
-            card.setCardNumber(validateInput(scanner));
-
-            System.out.print("Enter Balance: ");
-            double balance = validateDoubleInput(scanner);
-            if (balance < 0) {
-                System.out.println("Balance cannot be negative. Setting balance to 0.0.");
-                balance = 0.0;
-            }
-            card.setBalance(balance);
-
-            System.out.print("Enter PIN: ");
-            card.setPin(validateInput(scanner));
-
-            System.out.print("Enter Status (true/false): ");
-            card.setStatus(scanner.nextBoolean());
-
-            client.setCard(card);
-
-            return client;
-        }
-
-        public static int validateInput(Scanner scanner) {
-            while (!scanner.hasNextInt()) {
-                System.out.println("Invalid input. Please enter a valid number.");
-                scanner.next();
-            }
-            return scanner.nextInt();
-        }
-
-        public static double validateDoubleInput(Scanner scanner) {
-            while (!scanner.hasNextDouble()) {
-                System.out.println("Invalid input. Please enter a valid number.");
-                scanner.next();
-            }
-            return scanner.nextDouble();
-        }
-    }
+}
