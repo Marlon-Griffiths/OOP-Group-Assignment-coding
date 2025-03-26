@@ -1,0 +1,115 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+// Payable Interface
+interface Payable {
+    double getPaymentAmount();
+    void writeToFile();
+}
+
+// Custom Exception for Invalid Employee Data
+class InvalidEmployeeDataException extends Exception{
+    public InvalidEmployeeDataException(String message) {
+        super(message);
+    }
+}
+
+// Employee Class
+abstract class Employee implements Payable {
+    protected String name;
+    public Employee(String name) {
+        this.name = name;
+    }
+}
+
+// Commission Employee Class
+class CommissionEmployee extends Employee {
+    private double sales;
+    private double commissionRate;
+
+    public CommissionEmployee(String name, double sales, double commissionRate) throws InvalidEmployeeDataException {
+        super(name);
+        if (sales < 0 || commissionRate < 0) {
+            throw new InvalidEmployeeDataException("Sales and commission rate must be non-negative.");
+        }
+        this.sales = sales;
+        this.commissionRate = commissionRate;
+    }
+
+    @Override
+    public double getPaymentAmount() {
+        return sales * commissionRate;
+    }
+
+    @Override
+    public void writeToFile() {
+        try (FileWriter writer = new FileWriter("paystub.txt", true)) {
+            writer.write("Employee: " + name + ", Payment: " + getPaymentAmount() + ", Date: " + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "\n");
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + e.getMessage());
+        }
+    }
+}
+
+// GUI Class
+public class Payroll extends JFrame {
+    private JTable table;
+    private DefaultTableModel model;
+
+    public Payroll() {
+        setTitle("Payroll System");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        String[] columns = {"Name", "Type", "Payment"};
+        model = new DefaultTableModel(columns, 0);
+        table = new JTable(model);
+        add(new JScrollPane(table), BorderLayout.CENTER);
+
+        JPanel panel = new JPanel();
+        JButton addButton = new JButton("Add Employee");
+        JButton removeButton = new JButton("Remove Employee");
+        JButton generatePayStubButton = new JButton("Generate Pay Stub");
+        panel.add(addButton);
+        panel.add(removeButton);
+        panel.add(generatePayStubButton);
+        add(panel, BorderLayout.SOUTH);
+
+        addButton.addActionListener(e -> {
+            try {
+                String name = JOptionPane.showInputDialog("Enter Name:");
+                if (name == null || name.trim().isEmpty()) {
+                    throw new InvalidEmployeeDataException("Name cannot be empty.");
+                }
+                double sales = Double.parseDouble(JOptionPane.showInputDialog("Enter Sales:"));
+                double commissionRate = Double.parseDouble(JOptionPane.showInputDialog("Enter Commission Rate:"));
+                CommissionEmployee employee = new CommissionEmployee(name, sales, commissionRate);
+                model.addRow(new Object[]{name, "Commission Employee", employee.getPaymentAmount()});
+                employee.writeToFile();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Invalid number format. Please enter valid numbers.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (InvalidEmployeeDataException ex) {
+                JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        removeButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                model.removeRow(selectedRow);
+            }
+        });
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Payroll().setVisible(true));
+    }
+}
